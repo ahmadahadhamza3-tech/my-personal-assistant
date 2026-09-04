@@ -1,149 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Personal Assistant</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<title>My Personal Assistant</title>
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    .assistant {
-      width: 95%;
-      max-width: 700px;
-      background: #151c32;
-      border-radius: 25px;
-      padding: 25px;
-      box-shadow: 0 0 40px rgba(0,0,0,0.5);
-    }
+body {
+  font-family: Arial, sans-serif;
+  background: #080d1a;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+.assistant {
+  width: 95%;
+  max-width: 750px;
+  background: #121a2d;
+  border-radius: 25px;
+  padding: 25px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.5);
+}
 
-    .status {
-      text-align: center;
-      color: #8fa3c7;
-      margin-bottom: 20px;
-    }
+.logo {
+  text-align: center;
+  font-size: 60px;
+  margin-bottom: 5px;
+}
 
-    .chat {
-      height: 350px;
-      overflow-y: auto;
-      background: #0e1426;
-      border-radius: 15px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
+h1 {
+  text-align: center;
+  font-size: 28px;
+}
 
-    .message {
-      padding: 12px 15px;
-      border-radius: 15px;
-      margin-bottom: 10px;
-      max-width: 85%;
-      line-height: 1.4;
-    }
+.status {
+  text-align: center;
+  color: #8fa3c7;
+  margin: 10px 0 20px;
+}
 
-    .assistant-message {
-      background: #202b49;
-    }
+.status.listening {
+  color: #19d879;
+}
 
-    .user-message {
-      background: #315efb;
-      margin-left: auto;
-    }
+.chat {
+  height: 350px;
+  overflow-y: auto;
+  background: #090f20;
+  border-radius: 18px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
 
-    .controls {
-      display: flex;
-      gap: 10px;
-    }
+.message {
+  padding: 12px 15px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  max-width: 85%;
+  line-height: 1.4;
+}
 
-    input {
-      flex: 1;
-      padding: 15px;
-      border: none;
-      border-radius: 12px;
-      outline: none;
-      font-size: 16px;
-    }
+.assistant-message {
+  background: #202c49;
+}
 
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 0 18px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-    }
+.user-message {
+  background: #315efb;
+  margin-left: auto;
+}
 
-    #send {
-      background: #315efb;
-      color: white;
-    }
+.controls {
+  display: flex;
+  gap: 10px;
+}
 
-    #mic {
-      background: #19b36b;
-      color: white;
-    }
+input {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  outline: none;
+  font-size: 16px;
+}
 
-    button:hover {
-      opacity: 0.85;
-    }
-  </style>
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 0 18px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#start {
+  background: #19b36b;
+  color: white;
+}
+
+#stop {
+  background: #d94b4b;
+  color: white;
+}
+
+#send {
+  background: #315efb;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+.info {
+  text-align: center;
+  margin-top: 15px;
+  color: #7182a5;
+  font-size: 13px;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="assistant">
+<div class="assistant">
 
-    <h1>🤖 My Personal Assistant</h1>
+  <div class="logo">🤖</div>
 
-    <div class="status" id="status">
-      Ready to help you
-    </div>
+  <h1>My Personal Assistant</h1>
 
-    <div class="chat" id="chat">
-      <div class="message assistant-message">
-        Hello! I'm your personal assistant. What can I do for you?
-      </div>
-    </div>
+  <div class="status" id="status">
+    Say "Hey Assistant"
+  </div>
 
-    <div class="controls">
-      <input
-        id="input"
-        type="text"
-        placeholder="Type a command..."
-      >
+  <div class="chat" id="chat">
 
-      <button id="mic">🎤</button>
-
-      <button id="send">Send</button>
+    <div class="message assistant-message">
+      Hello! I'm ready. Say "Hey Assistant" followed by a command.
     </div>
 
   </div>
+
+  <div class="controls">
+
+    <input
+      id="input"
+      type="text"
+      placeholder="Type a command..."
+    >
+
+    <button id="start">🎤 Start</button>
+
+    <button id="stop">⛔ Stop</button>
+
+    <button id="send">Send</button>
+
+  </div>
+
+  <div class="info">
+    Example: "Hey Assistant, open YouTube"
+  </div>
+
+</div>
 
 <script>
 
 const input = document.getElementById("input");
 const send = document.getElementById("send");
-const mic = document.getElementById("mic");
+const start = document.getElementById("start");
+const stop = document.getElementById("stop");
 const chat = document.getElementById("chat");
 const status = document.getElementById("status");
+
+let listening = false;
+let recognition;
+
+
+/* -----------------------------
+   ADD MESSAGE
+----------------------------- */
 
 function addMessage(text, type) {
 
@@ -158,9 +202,17 @@ function addMessage(text, type) {
   chat.scrollTop = chat.scrollHeight;
 }
 
+
+/* -----------------------------
+   SPEAK
+----------------------------- */
+
 function speak(text) {
 
-  const speech = new SpeechSynthesisUtterance(text);
+  window.speechSynthesis.cancel();
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
 
   speech.rate = 1;
   speech.pitch = 1;
@@ -168,15 +220,30 @@ function speak(text) {
   window.speechSynthesis.speak(speech);
 }
 
+
+/* -----------------------------
+   ASSISTANT COMMANDS
+----------------------------- */
+
 function assistantReply(command) {
 
-  const text = command.toLowerCase();
+  const text = command.toLowerCase().trim();
 
-  if (text.includes("hello") || text.includes("hi")) {
 
-    return "Hello! Nice to meet you. How can I help you?";
+  /* GREETING */
+
+  if (
+    text.includes("hello") ||
+    text.includes("hi") ||
+    text.includes("hey")
+  ) {
+
+    return "Hello! How can I help you?";
 
   }
+
+
+  /* TIME */
 
   if (text.includes("time")) {
 
@@ -185,50 +252,94 @@ function assistantReply(command) {
 
   }
 
-  if (text.includes("date")) {
+
+  /* DATE */
+
+  if (text.includes("date") ||
+      text.includes("today")) {
 
     return "Today is " +
       new Date().toLocaleDateString();
 
   }
 
-  if (text.includes("youtube")) {
 
-    window.open("https://www.youtube.com", "_blank");
+  /* YOUTUBE */
+
+  if (text.includes("open youtube")) {
+
+    window.open(
+      "https://www.youtube.com",
+      "_blank"
+    );
 
     return "Opening YouTube.";
 
   }
 
-  if (text.includes("google")) {
 
-    window.open("https://www.google.com", "_blank");
+  /* GOOGLE */
+
+  if (text.includes("open google")) {
+
+    window.open(
+      "https://www.google.com",
+      "_blank"
+    );
 
     return "Opening Google.";
 
   }
 
-  if (text.includes("github")) {
 
-    window.open("https://github.com", "_blank");
+  /* GITHUB */
+
+  if (text.includes("open github")) {
+
+    window.open(
+      "https://github.com",
+      "_blank"
+    );
 
     return "Opening GitHub.";
 
   }
 
-  if (text.includes("gmail")) {
 
-    window.open("https://mail.google.com", "_blank");
+  /* GMAIL */
+
+  if (text.includes("open gmail")) {
+
+    window.open(
+      "https://mail.google.com",
+      "_blank"
+    );
 
     return "Opening Gmail.";
 
   }
 
-  if (text.includes("search")) {
 
-    const query = command
-      .replace(/search/ig, "")
-      .trim();
+  /* ROBLOX */
+
+  if (text.includes("open roblox")) {
+
+    window.open(
+      "https://www.roblox.com",
+      "_blank"
+    );
+
+    return "Opening Roblox.";
+
+  }
+
+
+  /* GOOGLE SEARCH */
+
+  if (text.startsWith("search")) {
+
+    let query =
+      command.replace(/search/ig, "").trim();
 
     if (query) {
 
@@ -242,105 +353,304 @@ function assistantReply(command) {
 
     }
 
-    return "What would you like me to search for?";
+    return "What should I search for?";
+
   }
 
-  return "I can currently open websites, search Google, tell you the time and date, and respond to simple commands. We can add a real AI brain next.";
+
+  /* YOUTUBE SEARCH */
+
+  if (text.startsWith("youtube search")) {
+
+    let query =
+      command.replace(/youtube search/ig, "").trim();
+
+    if (query) {
+
+      window.open(
+        "https://www.youtube.com/results?search_query=" +
+        encodeURIComponent(query),
+        "_blank"
+      );
+
+      return "Searching YouTube for " + query;
+
+    }
+
+    return "What should I search for on YouTube?";
+
+  }
+
+
+  /* HELP */
+
+  if (text.includes("help")) {
+
+    return "You can ask me to open YouTube, Google, Gmail, GitHub or Roblox. You can also ask me the time, date, or tell me to search Google.";
+
+  }
+
+
+  return "I don't know that command yet. Try saying open YouTube, open Google, search Google, or what is the time.";
 
 }
 
-function sendMessage() {
 
-  const text = input.value.trim();
+/* -----------------------------
+   PROCESS COMMAND
+----------------------------- */
 
-  if (!text) return;
+function processCommand(command) {
 
-  addMessage(text, "user-message");
+  if (!command) return;
 
-  input.value = "";
+  addMessage(
+    command,
+    "user-message"
+  );
 
-  const reply = assistantReply(text);
+  const reply =
+    assistantReply(command);
 
   setTimeout(() => {
 
-    addMessage(reply, "assistant-message");
+    addMessage(
+      reply,
+      "assistant-message"
+    );
 
     speak(reply);
 
-  }, 400);
+  }, 300);
+}
+
+
+/* -----------------------------
+   MANUAL SEND
+----------------------------- */
+
+function sendMessage() {
+
+  const text =
+    input.value.trim();
+
+  if (!text) return;
+
+  input.value = "";
+
+  processCommand(text);
 
 }
 
-send.addEventListener("click", sendMessage);
+send.addEventListener(
+  "click",
+  sendMessage
+);
 
-input.addEventListener("keydown", function(event) {
+input.addEventListener(
+  "keydown",
+  function(event) {
 
-  if (event.key === "Enter") {
+    if (event.key === "Enter") {
 
-    sendMessage();
+      sendMessage();
+
+    }
 
   }
+);
 
-});
 
-
-// Voice recognition
+/* -----------------------------
+   VOICE RECOGNITION
+----------------------------- */
 
 const SpeechRecognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
 
+
 if (SpeechRecognition) {
 
-  const recognition = new SpeechRecognition();
+  recognition =
+    new SpeechRecognition();
 
   recognition.lang = "en-US";
 
-  recognition.continuous = false;
+  recognition.continuous = true;
 
   recognition.interimResults = false;
 
-  mic.addEventListener("click", () => {
 
-    status.textContent = "🎤 Listening...";
+  recognition.onstart = function() {
 
-    recognition.start();
+    status.textContent =
+      '🎤 Listening... Say "Hey Assistant"';
 
-  });
-
-  recognition.onresult = function(event) {
-
-    const transcript =
-      event.results[0][0].transcript;
-
-    input.value = transcript;
-
-    status.textContent = "Command received";
-
-    sendMessage();
+    status.classList.add("listening");
 
   };
 
-  recognition.onerror = function() {
 
-    status.textContent = "Voice recognition error";
+  recognition.onresult =
+    function(event) {
 
-  };
+      const result =
+        event.results[
+          event.results.length - 1
+        ];
 
-  recognition.onend = function() {
+      const spoken =
+        result[0].transcript.trim();
 
-    status.textContent = "Ready to help you";
+      const lower =
+        spoken.toLowerCase();
 
-  };
+
+      /* WAIT FOR WAKE WORD */
+
+      if (
+        lower.includes("hey assistant") ||
+        lower.includes("hey assistance")
+      ) {
+
+        let command =
+          spoken
+          .replace(/hey assistant/ig, "")
+          .replace(/hey assistance/ig, "")
+          .trim();
+
+
+        /* Wake word only */
+
+        if (!command) {
+
+          speak(
+            "Yes, I'm listening."
+          );
+
+          return;
+
+        }
+
+
+        processCommand(command);
+
+      }
+
+    };
+
+
+  recognition.onerror =
+    function(event) {
+
+      console.log(
+        "Voice error:",
+        event.error
+      );
+
+      status.textContent =
+        "Voice error. Try Start again.";
+
+    };
+
+
+  recognition.onend =
+    function() {
+
+      if (listening) {
+
+        setTimeout(() => {
+
+          try {
+
+            recognition.start();
+
+          } catch (e) {}
+
+        }, 500);
+
+      }
+
+    };
+
+
+  /* START */
+
+  start.addEventListener(
+    "click",
+    function() {
+
+      listening = true;
+
+      try {
+
+        recognition.start();
+
+      } catch (e) {}
+
+    }
+  );
+
+
+  /* STOP */
+
+  stop.addEventListener(
+    "click",
+    function() {
+
+      listening = false;
+
+      recognition.stop();
+
+      status.textContent =
+        'Stopped. Click Start to listen.';
+
+      status.classList.remove(
+        "listening"
+      );
+
+    }
+  );
+
 
 } else {
 
-  mic.disabled = true;
-
   status.textContent =
-    "Voice recognition isn't supported in this browser.";
+    "Voice recognition is not supported.";
+
+  start.disabled = true;
 
 }
+
+
+/* -----------------------------
+   KEYBOARD SHORTCUT
+----------------------------- */
+
+document.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.ctrlKey &&
+      event.key === "Space"
+    ) {
+
+      if (!listening) {
+
+        start.click();
+
+      } else {
+
+        stop.click();
+
+      }
+
+    }
+
+  }
+);
 
 </script>
 
