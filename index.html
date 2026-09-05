@@ -1,285 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nova - Personal Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jarvis Assistant</title>
 
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080d18;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background: #0b1020;
-  color: white;
-  min-height: 100vh;
-}
+    .box {
+      width: 90%;
+      max-width: 700px;
+      background: #121a2b;
+      padding: 30px;
+      border-radius: 25px;
+      text-align: center;
+      box-shadow: 0 0 40px #000;
+    }
 
-.app {
-  width: 100%;
-  max-width: 1000px;
-  min-height: 100vh;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-}
+    .robot {
+      font-size: 70px;
+    }
 
-header {
-  padding: 20px;
-  text-align: center;
-  border-bottom: 1px solid #26304a;
-  background: #10172b;
-}
+    h1 {
+      font-size: 35px;
+      margin: 10px;
+    }
 
-.logo {
-  font-size: 42px;
-}
+    #status {
+      color: #20df82;
+      margin: 15px;
+    }
 
-header h1 {
-  font-size: 25px;
-  margin-top: 5px;
-}
+    #chat {
+      height: 300px;
+      overflow-y: auto;
+      background: #080d18;
+      border-radius: 15px;
+      padding: 15px;
+      text-align: left;
+    }
 
-#status {
-  color: #8ea0c4;
-  margin-top: 7px;
-  font-size: 14px;
-}
+    .message {
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 12px;
+    }
 
-#status.listening {
-  color: #27df87;
-}
+    .jarvis {
+      background: #202d48;
+    }
 
-.chat {
-  flex: 1;
-  padding: 25px;
-  overflow-y: auto;
-}
+    .user {
+      background: #315efb;
+      text-align: right;
+    }
 
-.message {
-  display: flex;
-  margin-bottom: 20px;
-}
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
 
-.bubble {
-  max-width: 80%;
-  padding: 14px 17px;
-  border-radius: 18px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-}
+    input {
+      flex: 1;
+      padding: 15px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
 
-.assistant {
-  justify-content: flex-start;
-}
+    button {
+      padding: 15px 20px;
+      border: none;
+      border-radius: 12px;
+      background: #315efb;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-.assistant .bubble {
-  background: #1b2640;
-}
-
-.user {
-  justify-content: flex-end;
-}
-
-.user .bubble {
-  background: #315efb;
-}
-
-.controls {
-  padding: 15px;
-  background: #10172b;
-  border-top: 1px solid #26304a;
-}
-
-.input-row {
-  display: flex;
-  gap: 10px;
-}
-
-input {
-  flex: 1;
-  padding: 15px;
-  border: 1px solid #35415f;
-  background: #0b1020;
-  color: white;
-  border-radius: 14px;
-  outline: none;
-  font-size: 16px;
-}
-
-button {
-  border: none;
-  border-radius: 14px;
-  padding: 0 18px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-#send {
-  background: #315efb;
-  color: white;
-}
-
-#start {
-  background: #18b86b;
-  color: white;
-}
-
-#stop {
-  background: #d94b4b;
-  color: white;
-}
-
-.buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.buttons button {
-  padding: 12px 16px;
-}
-
-.help {
-  text-align: center;
-  color: #7182a5;
-  font-size: 12px;
-  margin-top: 10px;
-}
-
-@media(max-width:600px) {
-  .bubble {
-    max-width: 90%;
-  }
-
-  .input-row {
-    flex-direction: column;
-  }
-
-  .input-row button {
-    height: 45px;
-  }
-
-  .buttons {
-    flex-wrap: wrap;
-  }
-}
-</style>
+    #start {
+      background: #16b96c;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="app">
+<div class="box">
 
-<header>
-  <div class="logo">🤖</div>
-  <h1>Nova</h1>
-  <div id="status">Say "Hey Nova" to talk to me</div>
-</header>
+  <div class="robot">🤖</div>
 
-<div class="chat" id="chat">
+  <h1>JARVIS</h1>
 
-  <div class="message assistant">
-    <div class="bubble">
-Hello! I'm Nova, your free personal assistant.
-
-You can say:
-• "Hey Nova, search YouTube for songs"
-• "Hey Nova, play BMW M4 edits"
-• "Hey Nova, search Google for Roblox games"
-• "Hey Nova, open Gmail"
-• "Hey Nova, what time is it?"
-    </div>
+  <div id="status">
+    Say "Hey Jarvis"
   </div>
 
-</div>
+  <div id="chat">
 
-<div class="controls">
+    <div class="message jarvis">
+      Hello! I am Jarvis. Say "Hey Jarvis" followed by a command.
+    </div>
 
-  <div class="input-row">
+  </div>
+
+  <div class="controls">
 
     <input
       id="input"
-      type="text"
-      placeholder="Talk or type a command..."
+      placeholder="Type a command..."
     >
 
-    <button id="send">Send</button>
+    <button onclick="sendText()">
+      Send
+    </button>
 
   </div>
 
-  <div class="buttons">
-
-    <button id="start">🎤 Start Listening</button>
-
-    <button id="stop">⛔ Stop</button>
-
-  </div>
-
-  <div class="help">
-    Say "Hey Nova" followed by your command.
-  </div>
+  <button id="start" onclick="startJarvis()">
+    🎤 Start Jarvis
+  </button>
 
 </div>
 
-</div>
 
 <script>
 
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const send = document.getElementById("send");
-const start = document.getElementById("start");
-const stop = document.getElementById("stop");
-const status = document.getElementById("status");
-
-let listening = false;
-let recognition = null;
+let recognition;
+let jarvisRunning = false;
 
 
-/* =========================
-   CHAT
-========================= */
-
-function addMessage(text, who) {
-
-  const message = document.createElement("div");
-
-  message.className =
-    "message " + who;
-
-  const bubble =
-    document.createElement("div");
-
-  bubble.className = "bubble";
-
-  bubble.textContent = text;
-
-  message.appendChild(bubble);
-
-  chat.appendChild(message);
-
-  chat.scrollTop =
-    chat.scrollHeight;
-}
-
-
-/* =========================
-   VOICE
-========================= */
+/* SPEAK */
 
 function speak(text) {
-
-  if (!("speechSynthesis" in window)) {
-    return;
-  }
-
-  window.speechSynthesis.cancel();
 
   const voice =
     new SpeechSynthesisUtterance(text);
@@ -287,70 +153,155 @@ function speak(text) {
   voice.rate = 1;
   voice.pitch = 1;
 
-  window.speechSynthesis.speak(voice);
+  speechSynthesis.cancel();
+
+  speechSynthesis.speak(voice);
 }
 
 
-/* =========================
-   OPEN YOUTUBE SEARCH
-========================= */
+/* CHAT MESSAGE */
 
-function youtubeSearch(query) {
+function addMessage(text, type) {
 
-  const url =
-    "https://www.youtube.com/results?search_query=" +
-    encodeURIComponent(query);
+  const message =
+    document.createElement("div");
 
-  window.open(url, "_blank");
+  message.className =
+    "message " + type;
 
-}
+  message.innerText = text;
 
+  document
+    .getElementById("chat")
+    .appendChild(message);
 
-/* =========================
-   GOOGLE SEARCH
-========================= */
-
-function googleSearch(query) {
-
-  const url =
-    "https://www.google.com/search?q=" +
-    encodeURIComponent(query);
-
-  window.open(url, "_blank");
+  document
+    .getElementById("chat")
+    .scrollTop = 999999;
 
 }
 
 
-/* =========================
-   COMMAND PROCESSOR
-========================= */
+/* COMMAND */
 
-function processCommand(command) {
+function command(text) {
 
-  const original =
-    command.trim();
-
-  if (!original) return;
-
-  addMessage(
-    original,
-    "user"
-  );
-
-  const text =
-    original.toLowerCase();
+  const lower =
+    text.toLowerCase();
 
 
-  /* GREETINGS */
+  /* YOUTUBE */
 
   if (
-    text === "hi" ||
-    text === "hello" ||
-    text.includes("how are you")
+    lower.includes("open youtube")
   ) {
 
-    reply(
-      "Hello! I'm doing great. What would you like me to do?"
+    speak("Opening YouTube.");
+
+    window.open(
+      "https://www.youtube.com",
+      "_blank"
+    );
+
+    return;
+  }
+
+
+  /* PLAY SONG */
+
+  if (
+    lower.includes("play")
+  ) {
+
+    let song =
+      text
+      .replace(/play/ig, "")
+      .trim();
+
+    if (song === "") {
+
+      speak(
+        "What song should I play?"
+      );
+
+      return;
+    }
+
+    speak(
+      "Searching YouTube for " + song
+    );
+
+    window.open(
+      "https://www.youtube.com/results?search_query=" +
+      encodeURIComponent(song),
+      "_blank"
+    );
+
+    return;
+  }
+
+
+  /* YOUTUBE SEARCH */
+
+  if (
+    lower.includes("search youtube")
+  ) {
+
+    let search =
+      text
+      .replace(/search youtube/ig, "")
+      .trim();
+
+    speak(
+      "Searching YouTube for " + search
+    );
+
+    window.open(
+      "https://www.youtube.com/results?search_query=" +
+      encodeURIComponent(search),
+      "_blank"
+    );
+
+    return;
+  }
+
+
+  /* GOOGLE SEARCH */
+
+  if (
+    lower.includes("search google")
+  ) {
+
+    let search =
+      text
+      .replace(/search google/ig, "")
+      .trim();
+
+    speak(
+      "Searching Google for " + search
+    );
+
+    window.open(
+      "https://www.google.com/search?q=" +
+      encodeURIComponent(search),
+      "_blank"
+    );
+
+    return;
+  }
+
+
+  /* GOOGLE */
+
+  if (
+    lower === "open google"
+  ) {
+
+    speak("Opening Google.");
+
+    window.open(
+      "https://www.google.com",
+      "_blank"
     );
 
     return;
@@ -360,13 +311,12 @@ function processCommand(command) {
   /* TIME */
 
   if (
-    text.includes("what time") ||
-    text === "time" ||
-    text.includes("current time")
+    lower.includes("what time") ||
+    lower === "time"
   ) {
 
-    reply(
-      "The current time is " +
+    speak(
+      "The time is " +
       new Date().toLocaleTimeString()
     );
 
@@ -377,12 +327,11 @@ function processCommand(command) {
   /* DATE */
 
   if (
-    text.includes("what date") ||
-    text.includes("today's date") ||
-    text === "date"
+    lower.includes("what date") ||
+    lower.includes("today")
   ) {
 
-    reply(
+    speak(
       "Today is " +
       new Date().toLocaleDateString()
     );
@@ -391,178 +340,18 @@ function processCommand(command) {
   }
 
 
-  /* OPEN YOUTUBE */
-
-  if (
-    text === "youtube" ||
-    text === "open youtube"
-  ) {
-
-    window.open(
-      "https://www.youtube.com",
-      "_blank"
-    );
-
-    reply("Opening YouTube.");
-
-    return;
-  }
-
-
-  /* YOUTUBE SEARCH */
-
-  if (
-    text.includes("search youtube") ||
-    text.includes("search on youtube") ||
-    text.includes("youtube search")
-  ) {
-
-    let query =
-      original
-      .replace(/search youtube/ig, "")
-      .replace(/search on youtube/ig, "")
-      .replace(/youtube search/ig, "")
-      .trim();
-
-    if (!query) {
-
-      reply(
-        "What would you like me to search for on YouTube?"
-      );
-
-      return;
-    }
-
-    youtubeSearch(query);
-
-    reply(
-      "Searching YouTube for " +
-      query
-    );
-
-    return;
-  }
-
-
-  /* PLAY SONG / VIDEO */
-
-  if (
-    text.startsWith("play ") ||
-    text.includes("play song") ||
-    text.includes("play music")
-  ) {
-
-    let query =
-      original
-      .replace(/^play/ig, "")
-      .replace(/song/ig, "")
-      .replace(/music/ig, "")
-      .trim();
-
-    if (!query) {
-
-      reply(
-        "What would you like me to play?"
-      );
-
-      return;
-    }
-
-    youtubeSearch(query);
-
-    reply(
-      "I searched YouTube for " +
-      query +
-      ". Choose a result to play it."
-    );
-
-    return;
-  }
-
-
-  /* GOOGLE SEARCH */
-
-  if (
-    text.startsWith("search google") ||
-    text.startsWith("google search") ||
-    text.startsWith("search ")
-  ) {
-
-    let query =
-      original
-      .replace(/search google/ig, "")
-      .replace(/google search/ig, "")
-      .replace(/^search/ig, "")
-      .trim();
-
-    if (!query) {
-
-      reply(
-        "What would you like me to search for?"
-      );
-
-      return;
-    }
-
-    googleSearch(query);
-
-    reply(
-      "Searching Google for " +
-      query
-    );
-
-    return;
-  }
-
-
-  /* OPEN GOOGLE */
-
-  if (
-    text === "open google"
-  ) {
-
-    window.open(
-      "https://www.google.com",
-      "_blank"
-    );
-
-    reply("Opening Google.");
-
-    return;
-  }
-
-
   /* GMAIL */
 
   if (
-    text.includes("open gmail") ||
-    text === "gmail"
+    lower.includes("open gmail")
   ) {
+
+    speak("Opening Gmail.");
 
     window.open(
       "https://mail.google.com",
       "_blank"
     );
-
-    reply("Opening Gmail.");
-
-    return;
-  }
-
-
-  /* GITHUB */
-
-  if (
-    text.includes("open github") ||
-    text === "github"
-  ) {
-
-    window.open(
-      "https://github.com",
-      "_blank"
-    );
-
-    reply("Opening GitHub.");
 
     return;
   }
@@ -571,130 +360,84 @@ function processCommand(command) {
   /* ROBLOX */
 
   if (
-    text.includes("open roblox") ||
-    text === "roblox"
+    lower.includes("open roblox")
   ) {
+
+    speak("Opening Roblox.");
 
     window.open(
       "https://www.roblox.com",
       "_blank"
     );
 
-    reply("Opening Roblox.");
-
     return;
   }
 
 
-  /* HELP */
+  /* HELLO */
 
   if (
-    text.includes("help") ||
-    text.includes("what can you do")
+    lower.includes("hello") ||
+    lower.includes("hi")
   ) {
 
-    reply(
-`I can currently:
-
-• Search YouTube
-• Search Google
-• Open YouTube
-• Open Google
-• Open Gmail
-• Open GitHub
-• Open Roblox
-• Tell you the time
-• Tell you the date
-• Talk using my voice
-
-Try saying:
-"Hey Nova, play relaxing music."`
+    speak(
+      "Hello! How can I help you?"
     );
 
     return;
   }
 
 
-  /* UNKNOWN */
-
-  reply(
-    "I don't understand that command yet. Try asking me to search YouTube, play a song, search Google, open a website, or tell you the time."
+  speak(
+    "Sorry, I don't know that command yet."
   );
 
 }
 
 
-/* =========================
-   REPLY
-========================= */
+/* SEND TEXT */
 
-function reply(text) {
+function sendText() {
 
-  setTimeout(() => {
+  const input =
+    document.getElementById("input");
 
-    addMessage(
-      text,
-      "assistant"
-    );
+  const text =
+    input.value.trim();
 
-    speak(text);
+  if (!text) return;
 
-  }, 300);
+  addMessage(
+    text,
+    "user"
+  );
+
+  input.value = "";
+
+  command(text);
 
 }
 
 
-/* =========================
-   SEND BUTTON
-========================= */
+/* VOICE */
 
-send.addEventListener(
-  "click",
-  function() {
+function startJarvis() {
 
-    const text =
-      input.value.trim();
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
-    if (!text) return;
 
-    input.value = "";
+  if (!SpeechRecognition) {
 
-    processCommand(text);
+    alert(
+      "Voice recognition is not supported in this browser."
+    );
 
+    return;
   }
-);
 
-
-/* =========================
-   ENTER KEY
-========================= */
-
-input.addEventListener(
-  "keydown",
-  function(event) {
-
-    if (
-      event.key === "Enter"
-    ) {
-
-      send.click();
-
-    }
-
-  }
-);
-
-
-/* =========================
-   VOICE RECOGNITION
-========================= */
-
-const SpeechRecognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
-
-
-if (SpeechRecognition) {
 
   recognition =
     new SpeechRecognition();
@@ -709,17 +452,12 @@ if (SpeechRecognition) {
     false;
 
 
-  recognition.onstart =
-    function() {
+  jarvisRunning = true;
 
-      status.textContent =
-        '🎤 Listening... Say "Hey Nova"';
 
-      status.classList.add(
-        "listening"
-      );
-
-    };
+  document.getElementById("status")
+    .innerText =
+    '🎤 Listening... Say "Hey Jarvis"';
 
 
   recognition.onresult =
@@ -733,52 +471,41 @@ if (SpeechRecognition) {
       const spoken =
         result[0].transcript.trim();
 
+
       const lower =
         spoken.toLowerCase();
 
 
-      /* WAKE WORD */
-
       if (
-        lower.includes("hey nova") ||
-        lower.includes("hey noah")
+        lower.includes("hey jarvis")
       ) {
 
-        let command =
+        let commandText =
           spoken
-          .replace(/hey nova/ig, "")
-          .replace(/hey noah/ig, "")
+          .replace(/hey jarvis/ig, "")
           .trim();
 
 
-        /* ONLY WAKE WORD */
+        if (commandText) {
 
-        if (!command) {
+          addMessage(
+            commandText,
+            "user"
+          );
+
+          command(
+            commandText
+          );
+
+        } else {
 
           speak(
             "Yes, I'm listening."
           );
 
-          return;
         }
 
-
-        processCommand(
-          command
-        );
-
       }
-
-    };
-
-
-  recognition.onerror =
-    function(event) {
-
-      console.log(
-        "Voice error:",
-        event.error
-      );
 
     };
 
@@ -786,99 +513,37 @@ if (SpeechRecognition) {
   recognition.onend =
     function() {
 
-      if (listening) {
+      if (jarvisRunning) {
 
-        setTimeout(
-          function() {
+        try {
 
-            try {
-              recognition.start();
-            } catch(e) {}
+          recognition.start();
 
-          },
-          700
-        );
+        } catch(error) {}
 
       }
 
     };
 
 
-  /* START */
+  recognition.onerror =
+    function(error) {
 
-  start.addEventListener(
-    "click",
-    function() {
-
-      listening = true;
-
-      try {
-
-        recognition.start();
-
-      } catch(e) {}
-
-    }
-  );
-
-
-  /* STOP */
-
-  stop.addEventListener(
-    "click",
-    function() {
-
-      listening = false;
-
-      try {
-
-        recognition.stop();
-
-      } catch(e) {}
-
-      status.textContent =
-        'Stopped. Click "Start Listening".';
-
-      status.classList.remove(
-        "listening"
+      console.log(
+        "Jarvis error:",
+        error
       );
 
-    }
-  );
+    };
 
-} else {
 
-  status.textContent =
-    "Voice recognition is not supported by this browser.";
+  try {
 
-  start.disabled = true;
+    recognition.start();
+
+  } catch(error) {}
 
 }
-
-
-/* =========================
-   KEYBOARD SHORTCUT
-========================= */
-
-document.addEventListener(
-  "keydown",
-  function(event) {
-
-    if (
-      event.ctrlKey &&
-      event.code === "Space"
-    ) {
-
-      if (listening) {
-        stop.click();
-      } else {
-        start.click();
-      }
-
-    }
-
-  }
-);
 
 </script>
 
