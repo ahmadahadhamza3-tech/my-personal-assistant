@@ -1,345 +1,1245 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JARVIS</title>
-  <meta name="description" content="A voice-controlled personal assistant web app powered by Web Speech API.">
+  <title>JARVIS — Voice & Command Personal Assistant</title>
+  <meta name="description" content="JARVIS - Voice and command personal assistant web application powered by Web Speech API.">
   <meta property="og:title" content="JARVIS">
-  <meta property="og:description" content="A voice-controlled personal assistant web app powered by Web Speech API.">
+  <meta property="og:description" content="JARVIS - Voice and command personal assistant web application.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      background: #050505;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 30%, #081b29 0%, #030a10 60%, #010408 100%);
       color: #00eaff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 80px;
+      font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 15px 40px;
+      overflow-x: hidden;
+      position: relative;
     }
 
-    h1 {
-      font-size: 60px;
-      margin-bottom: 10px;
+    /* Ambient Holographic Grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(0, 234, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 234, 255, 0.03) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    p {
-      font-size: 20px;
-      color: white;
+    .hud-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    button {
-      margin-top: 30px;
-      padding: 18px 35px;
-      font-size: 22px;
-      border: 2px solid #00eaff;
-      border-radius: 15px;
-      background: #00151a;
+    /* Header Nav */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0 20px;
+      border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+    }
+
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 4px;
       color: #00eaff;
+      text-shadow: 0 0 15px rgba(0, 234, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title span {
+      font-size: 13px;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+      color: #79f4ff;
+      border: 1px solid rgba(0, 234, 255, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0, 234, 255, 0.05);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      background: rgba(0, 234, 255, 0.08);
+      border: 1px solid rgba(0, 234, 255, 0.35);
+      color: #79f4ff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0, 234, 255, 0.2);
+      border-color: #00eaff;
+      box-shadow: 0 0 12px rgba(0, 234, 255, 0.3);
+    }
+
+    /* Arc Reactor Center Graphic */
+    .reactor-wrapper {
+      margin: 30px 0 20px;
+      position: relative;
+      width: 170px;
+      height: 170px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #00343d;
+    .reactor-ring-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px dashed rgba(0, 234, 255, 0.35);
+      animation: spinClockwise 25s linear infinite;
+      box-shadow: 0 0 25px rgba(0, 234, 255, 0.15);
     }
 
-    #status {
-      margin-top: 30px;
+    .reactor-ring-mid {
+      position: absolute;
+      width: 136px;
+      height: 136px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 234, 255, 0.5);
+      border-top-color: transparent;
+      border-bottom-color: transparent;
+      animation: spinCounter 12s linear infinite;
+    }
+
+    .reactor-core {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #00f2ff 0%, #0084a3 60%, #002c38 100%);
+      box-shadow: 0 0 35px #00eaff, inset 0 0 15px #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .reactor-core svg {
+      width: 38px;
+      height: 38px;
+      fill: #ffffff;
+      filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.7));
+    }
+
+    .reactor-wrapper.listening .reactor-core {
+      background: radial-gradient(circle, #38ff98 0%, #00a852 60%, #00361a 100%);
+      box-shadow: 0 0 50px #38ff98, inset 0 0 20px #ffffff;
+      animation: pulseCore 1.6s ease-in-out infinite alternate;
+    }
+
+    .reactor-wrapper.listening .reactor-ring-outer {
+      border-color: rgba(56, 255, 152, 0.8);
+      animation-duration: 8s;
+    }
+
+    .reactor-wrapper.speaking .reactor-core {
+      background: radial-gradient(circle, #ffca38 0%, #d48b00 60%, #472d00 100%);
+      box-shadow: 0 0 50px #ffca38, inset 0 0 20px #ffffff;
+    }
+
+    @keyframes spinClockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinCounter {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    @keyframes pulseCore {
+      0% { transform: scale(0.96); box-shadow: 0 0 25px #38ff98; }
+      100% { transform: scale(1.06); box-shadow: 0 0 60px #38ff98; }
+    }
+
+    /* Status Badge & Headline */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: rgba(0, 234, 255, 0.08);
+      border: 1px solid rgba(0, 234, 255, 0.3);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #79f4ff;
+      box-shadow: 0 0 8px #00eaff;
+    }
+
+    .status-badge.listening {
+      background: rgba(56, 255, 152, 0.12);
+      border-color: #38ff98;
+      color: #38ff98;
+    }
+
+    .status-badge.listening .status-dot {
+      background: #38ff98;
+      box-shadow: 0 0 10px #38ff98;
+      animation: blink 0.8s infinite alternate;
+    }
+
+    .status-badge.speaking {
+      background: rgba(255, 202, 56, 0.12);
+      border-color: #ffca38;
+      color: #ffca38;
+    }
+
+    .status-badge.speaking .status-dot {
+      background: #ffca38;
+      box-shadow: 0 0 10px #ffca38;
+    }
+
+    @keyframes blink {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
+
+    .live-status-text {
       font-size: 20px;
-      color: white;
+      color: #ffffff;
+      font-weight: 600;
+      min-height: 28px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .hint-text {
+      font-size: 14px;
+      color: rgba(0, 234, 255, 0.7);
+      margin-bottom: 20px;
+    }
+
+    /* Sound Visualizer Bars */
+    .visualizer-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 28px;
+      margin-bottom: 20px;
+    }
+
+    .bar {
+      width: 4px;
+      height: 6px;
+      background: #00eaff;
+      border-radius: 2px;
+      transition: height 0.15s ease;
+    }
+
+    .visualizer-container.active .bar:nth-child(odd) {
+      animation: wave 0.4s ease-in-out infinite alternate;
+    }
+
+    .visualizer-container.active .bar:nth-child(even) {
+      animation: wave 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes wave {
+      0% { height: 4px; opacity: 0.4; }
+      100% { height: 26px; opacity: 1; box-shadow: 0 0 8px #00eaff; }
+    }
+
+    /* Main Action Button */
+    .main-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #001f29 0%, #003647 100%);
+      border: 2px solid #00eaff;
+      border-radius: 12px;
+      color: #00eaff;
+      padding: 12px 28px;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'Rajdhani', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 20px rgba(0, 234, 255, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: linear-gradient(135deg, #003647 0%, #005a75 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(0, 234, 255, 0.45);
+    }
+
+    .btn-action.active {
+      border-color: #ff5252;
+      color: #ff7a7a;
+      box-shadow: 0 0 20px rgba(255, 82, 82, 0.3);
+      background: linear-gradient(135deg, #2b0000 0%, #4d0a0a 100%);
+    }
+
+    /* Command Input Form */
+    .command-form {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .command-input {
+      flex: 1;
+      background: rgba(0, 20, 30, 0.8);
+      border: 1px solid rgba(0, 234, 255, 0.35);
+      border-radius: 10px;
+      color: #ffffff;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .command-input::placeholder {
+      color: rgba(0, 234, 255, 0.4);
+    }
+
+    .command-input:focus {
+      border-color: #00eaff;
+      box-shadow: 0 0 15px rgba(0, 234, 255, 0.3);
+    }
+
+    .btn-send {
+      background: #00eaff;
+      border: none;
+      border-radius: 10px;
+      color: #010408;
+      padding: 0 22px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-send:hover {
+      background: #79f4ff;
+      box-shadow: 0 0 15px #00eaff;
+    }
+
+    /* Quick Command Pills */
+    .pills-section {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .pills-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(0, 234, 255, 0.65);
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .pills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      background: rgba(0, 234, 255, 0.06);
+      border: 1px solid rgba(0, 234, 255, 0.22);
+      color: #a4f5ff;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Rajdhani', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pill-btn:hover {
+      background: rgba(0, 234, 255, 0.18);
+      border-color: #00eaff;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Console Activity Log */
+    .console-card {
+      width: 100%;
+      background: rgba(0, 16, 26, 0.85);
+      border: 1px solid rgba(0, 234, 255, 0.25);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+      margin-bottom: 12px;
+    }
+
+    .console-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: #00eaff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-clear {
+      background: transparent;
+      border: none;
+      color: rgba(0, 234, 255, 0.6);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+    }
+
+    .btn-clear:hover {
+      color: #ff5252;
+    }
+
+    .log-feed {
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .log-entry {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-left: 3px solid transparent;
+    }
+
+    .log-entry.user {
+      background: rgba(0, 234, 255, 0.05);
+      border-left-color: #00eaff;
+    }
+
+    .log-entry.jarvis {
+      background: rgba(56, 255, 152, 0.05);
+      border-left-color: #38ff98;
+    }
+
+    .log-sender {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.7;
+    }
+
+    .log-entry.user .log-sender { color: #00eaff; }
+    .log-entry.jarvis .log-sender { color: #38ff98; }
+
+    .log-text {
+      color: #ffffff;
+      word-break: break-word;
+    }
+
+    /* Info / Permission Notice Banner */
+    .notice-banner {
+      width: 100%;
+      background: rgba(255, 179, 0, 0.1);
+      border: 1px solid rgba(255, 179, 0, 0.4);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #ffd271;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+      gap: 10px;
+    }
+
+    .notice-banner.show {
+      display: flex;
+    }
+
+    .notice-banner a {
+      color: #ffffff;
+      background: rgba(255, 179, 0, 0.25);
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 234, 255, 0.3);
+      border-radius: 3px;
     }
   </style>
 </head>
 
 <body>
 
-  <h1>JARVIS</h1>
-  <p>Say "Hey Jarvis"</p>
+  <div class="hud-container" id="hud-container">
+    
+    <!-- Top Bar -->
+    <header id="app-header">
+      <div class="brand-title" id="brand-title">
+        JARVIS
+        <span id="version-tag">OS v4.2</span>
+      </div>
+      <div class="header-actions" id="header-actions">
+        <button id="open-tab-btn" class="btn-secondary" onclick="openStandalone()" title="Open in new window for direct microphone permissions">
+          🔗 Full Window
+        </button>
+        <button id="sound-toggle-btn" class="btn-secondary" onclick="toggleMute()">
+          🔊 Voice: ON
+        </button>
+      </div>
+    </header>
 
-  <button id="start-jarvis-btn" onclick="toggleJarvis()">🎤 Start Jarvis</button>
-
-  <div id="status">Jarvis is sleeping...</div>
-  <div id="hint" style="margin-top: 15px; font-size: 14px; color: #888;">
-    Microphone permission required. If blocked in preview, open in a new tab.
-  </div>
-
-  <div style="margin-top: 40px; display: inline-block; text-align: center;">
-    <p style="font-size: 15px; color: #00eaff; margin-bottom: 10px;">Quick Test (click to test voice response):</p>
-    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-      <button style="margin-top: 0; padding: 8px 16px; font-size: 14px; border-radius: 8px;" onclick="simulateVoice('what time')">⏰ What time</button>
-      <button style="margin-top: 0; padding: 8px 16px; font-size: 14px; border-radius: 8px;" onclick="simulateVoice('open youtube')">▶️ Open YouTube</button>
-      <button style="margin-top: 0; padding: 8px 16px; font-size: 14px; border-radius: 8px;" onclick="simulateVoice('open google')">🔍 Open Google</button>
+    <!-- Arc Reactor Visualization -->
+    <div class="reactor-wrapper" id="arc-reactor" onclick="toggleJarvis()" title="Click to start/stop listening">
+      <div class="reactor-ring-outer"></div>
+      <div class="reactor-ring-mid"></div>
+      <div class="reactor-core" id="reactor-core">
+        <svg viewBox="0 0 24 24" id="mic-icon">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+      </div>
     </div>
+
+    <!-- Status Display -->
+    <div class="status-badge" id="hud-status">
+      <span class="status-dot" id="hud-dot"></span>
+      <span id="status-label">SYSTEM READY</span>
+    </div>
+
+    <div class="live-status-text" id="status">Click "Start Jarvis" or say "Hey Jarvis"</div>
+    <div class="hint-text" id="hint-text">Commands: "Open YouTube and play Thodi Der song", "What time is it", "Calculate 50*4", "Tell me a joke"</div>
+
+    <!-- Equalizer Visualizer Bars -->
+    <div class="visualizer-container" id="visualizer-container">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+
+    <!-- Mic Permission Notice Banner -->
+    <div class="notice-banner" id="mic-warning-banner">
+      <span>💡 Microphones in embedded previews can be restricted by browser security. You can type commands below or open in a full tab.</span>
+      <a href="javascript:void(0)" onclick="openStandalone()">Open Full Tab</a>
+    </div>
+
+    <!-- Main Mic Action Button -->
+    <div class="main-controls" id="main-controls">
+      <button id="start-jarvis-btn" class="btn-action" onclick="toggleJarvis()">
+        <span id="btn-icon">🎤</span>
+        <span id="btn-text">Start Jarvis</span>
+      </button>
+    </div>
+
+    <!-- Command Input (Supports both Text and Voice) -->
+    <form class="command-form" id="command-form" onsubmit="handleFormSubmit(event)">
+      <input 
+        type="text" 
+        id="command-input" 
+        class="command-input" 
+        placeholder="Type a command or say 'Hey Jarvis'..." 
+        autocomplete="off"
+      />
+      <button type="submit" id="send-cmd-btn" class="btn-send">EXECUTE</button>
+    </form>
+
+    <!-- Quick Command Pills -->
+    <div class="pills-section" id="pills-section">
+      <div class="pills-title">QUICK ACTIONS</div>
+      <div class="pills-grid" id="pills-grid">
+        <button type="button" class="pill-btn" onclick="executeCommand('what time')">⏰ Time</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('what date is it')">📅 Date</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('open youtube')">▶️ YouTube</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('open google')">🔍 Google</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('open gmail')">✉️ Gmail</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('open roblox')">🎮 Roblox</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('tell me a joke')">🤣 Joke</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('calculate 25 * 4')">🧮 Math</button>
+        <button type="button" class="pill-btn" onclick="executeCommand('who are you')">🤖 Who are you</button>
+      </div>
+    </div>
+
+    <!-- Console Log -->
+    <div class="console-card" id="console-card">
+      <div class="console-header">
+        <span class="console-title">
+          <span>CONSOLE LOG</span>
+        </span>
+        <button class="btn-clear" id="btn-clear" onclick="clearLogs()">Clear</button>
+      </div>
+      <div class="log-feed" id="log-feed">
+        <div class="log-entry jarvis">
+          <span class="log-sender">JARVIS</span>
+          <span class="log-text">System initialized and online. Ready for voice or text instructions.</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    const status = document.getElementById("status");
-    const startBtn = document.getElementById("start-jarvis-btn");
-    let wakeRecognition = null;
-    let isJarvisRunning = false;
-    let isCommandMode = false;
-    let restartTimer = null;
+    // State
+    let isJarvisActive = false;
+    let isVoiceMuted = false;
+    let currentRecognition = null;
+    let recognitionRestartTimeout = null;
+    let audioCtx = null;
 
-    function updateButton() {
-      if (isJarvisRunning) {
-        startBtn.innerText = "⏹️ Stop Jarvis";
-        startBtn.style.background = "#00343d";
-        startBtn.style.borderColor = "#ff4d4d";
-        startBtn.style.color = "#ff8080";
+    // DOM Elements
+    const statusEl = document.getElementById("status");
+    const statusLabel = document.getElementById("status-label");
+    const hudStatus = document.getElementById("hud-status");
+    const startBtn = document.getElementById("start-jarvis-btn");
+    const btnText = document.getElementById("btn-text");
+    const btnIcon = document.getElementById("btn-icon");
+    const arcReactor = document.getElementById("arc-reactor");
+    const visualizer = document.getElementById("visualizer-container");
+    const commandInput = document.getElementById("command-input");
+    const logFeed = document.getElementById("log-feed");
+    const micWarning = document.getElementById("mic-warning-banner");
+    const soundToggleBtn = document.getElementById("sound-toggle-btn");
+
+    // Audio SFX using Web Audio API
+    function playBeep(type) {
+      try {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        if (type === 'activate') {
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'ack') {
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(900, now + 0.1);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'deactivate') {
+          osc.frequency.setValueAtTime(660, now);
+          osc.frequency.exponentialRampToValueAtTime(330, now + 0.15);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        }
+      } catch (e) {
+        // Silently ignore audio context failures
+      }
+    }
+
+    function toggleMute() {
+      isVoiceMuted = !isVoiceMuted;
+      if (isVoiceMuted) {
+        window.speechSynthesis.cancel();
+        soundToggleBtn.innerText = "🔇 Voice: OFF";
+        soundToggleBtn.style.color = "#ff7a7a";
       } else {
-        startBtn.innerText = "🎤 Start Jarvis";
-        startBtn.style.background = "#00151a";
-        startBtn.style.borderColor = "#00eaff";
-        startBtn.style.color = "#00eaff";
+        soundToggleBtn.innerText = "🔊 Voice: ON";
+        soundToggleBtn.style.color = "#79f4ff";
+      }
+    }
+
+    function openStandalone() {
+      window.open(window.location.href, '_blank');
+    }
+
+    function setStatusState(state, message) {
+      if (message) statusEl.innerText = message;
+      hudStatus.className = "status-badge";
+      arcReactor.className = "reactor-wrapper";
+      visualizer.classList.remove("active");
+
+      if (state === "listening") {
+        hudStatus.classList.add("listening");
+        arcReactor.classList.add("listening");
+        statusLabel.innerText = "LISTENING";
+      } else if (state === "speaking") {
+        hudStatus.classList.add("speaking");
+        arcReactor.classList.add("speaking");
+        visualizer.classList.add("active");
+        statusLabel.innerText = "SPEAKING";
+      } else if (state === "processing") {
+        statusLabel.innerText = "PROCESSING";
+      } else {
+        statusLabel.innerText = "STANDBY";
       }
     }
 
     function toggleJarvis() {
-      if (isJarvisRunning) {
+      if (isJarvisActive) {
         stopJarvis();
       } else {
         startJarvis();
       }
     }
 
-    function stopJarvis() {
-      isJarvisRunning = false;
-      isCommandMode = false;
-      clearTimeout(restartTimer);
-      if (wakeRecognition) {
-        try {
-          wakeRecognition.abort();
-        } catch (e) {}
-      }
-      updateButton();
-      status.innerText = "Jarvis is sleeping...";
-    }
-
-    async function startJarvis() {
-      const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
+    function startJarvis() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
-        status.innerText =
-          "❌ Speech recognition is not supported in this browser. Please use Chrome or Edge.";
+        statusEl.innerText = "Speech recognition is not supported in this browser. You can type commands below!";
+        micWarning.classList.add("show");
         return;
       }
 
-      isJarvisRunning = true;
-      isCommandMode = false;
-      updateButton();
-      status.innerText = "🔄 Initializing microphone...";
+      isJarvisActive = true;
+      startBtn.classList.add("active");
+      btnIcon.innerText = "⏹️";
+      btnText.innerText = "Stop Jarvis";
+      playBeep('activate');
+      setStatusState("listening", "🎤 Listening... Say 'Hey Jarvis' or speak a command");
 
-      // Prompt for mic permission cleanly if available
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      initiateRecognitionCycle();
+    }
+
+    function stopJarvis() {
+      isJarvisActive = false;
+      clearTimeout(recognitionRestartTimeout);
+
+      if (currentRecognition) {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach(track => track.stop());
-        } catch (err) {
-          if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-            status.innerText = "❌ Microphone permission blocked! Please allow microphone access in your browser bar.";
-            isJarvisRunning = false;
-            updateButton();
+          currentRecognition.onstart = null;
+          currentRecognition.onresult = null;
+          currentRecognition.onerror = null;
+          currentRecognition.onend = null;
+          currentRecognition.abort();
+        } catch (e) {}
+        currentRecognition = null;
+      }
+
+      startBtn.classList.remove("active");
+      btnIcon.innerText = "🎤";
+      btnText.innerText = "Start Jarvis";
+      playBeep('deactivate');
+      setStatusState("standby", "Jarvis is standing by. Click Start or type a command.");
+    }
+
+    // High-reliability recognition loop that gracefully recreates the instance on each session
+    function initiateRecognitionCycle() {
+      if (!isJarvisActive) return;
+
+      clearTimeout(recognitionRestartTimeout);
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+
+      // Clean up existing instance
+      if (currentRecognition) {
+        try {
+          currentRecognition.onstart = null;
+          currentRecognition.onresult = null;
+          currentRecognition.onerror = null;
+          currentRecognition.onend = null;
+          currentRecognition.abort();
+        } catch (e) {}
+        currentRecognition = null;
+      }
+
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false; // Non-continuous is far more robust across all browser platforms
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+          if (isJarvisActive) {
+            setStatusState("listening", "🎤 Listening... Say 'Hey Jarvis' or any command");
+          }
+        };
+
+        recognition.onresult = function(event) {
+          if (!event.results || !event.results[0] || !event.results[0][0]) return;
+          const transcript = event.results[0][0].transcript.trim().toLowerCase();
+          addLog("user", transcript);
+
+          if (transcript.includes("hey jarvis") || transcript === "jarvis") {
+            playBeep('ack');
+            speak("Yes, I am listening. What can I do for you?");
+          } else {
+            handleCommand(transcript);
+          }
+        };
+
+        recognition.onerror = function(event) {
+          const err = event.error;
+          // Normal idle timeouts in Speech API
+          if (err === 'no-speech' || err === 'aborted') {
             return;
           }
-        }
-      }
 
-      setupWakeRecognition();
-    }
+          if (err === 'not-allowed' || err === 'service-not-allowed') {
+            micWarning.classList.add("show");
+            statusEl.innerText = "Microphone permission needed. Use 'Full Window' above or type your commands below.";
+            stopJarvis();
+          } else {
+            console.warn("Speech recognition event:", err);
+          }
+        };
 
-    function setupWakeRecognition() {
-      const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-      if (!SpeechRecognition || !isJarvisRunning) return;
-
-      if (wakeRecognition) {
-        try {
-          wakeRecognition.abort();
-        } catch (e) {}
-      }
-
-      wakeRecognition = new SpeechRecognition();
-      wakeRecognition.lang = "en-US";
-      wakeRecognition.continuous = true;
-      wakeRecognition.interimResults = false;
-
-      wakeRecognition.onstart = function() {
-        if (isJarvisRunning && !isCommandMode) {
-          status.innerText = "🎤 Listening... Say 'Hey Jarvis'";
-        }
-      };
-
-      wakeRecognition.onresult = function(event) {
-        const text =
-          event.results[event.results.length - 1][0].transcript
-          .toLowerCase();
-
-        status.innerText = "You said: " + text;
-
-        if (text.includes("hey jarvis")) {
-          isCommandMode = true;
-          speak("Yes, I am listening.");
-
-          try {
-            wakeRecognition.stop();
-          } catch (e) {}
-
-          setTimeout(() => {
-            if (isJarvisRunning) {
-              listenForCommand();
-            }
-          }, 1500);
-        }
-      };
-
-      wakeRecognition.onerror = function(event) {
-        console.log("Wake recognition event:", event.error);
-        // no-speech or aborted are expected in continuous recognition
-        if (event.error === "no-speech" || event.error === "aborted") {
-          return;
-        }
-
-        if (event.error === "not-allowed") {
-          status.innerText = "❌ Microphone permission blocked. Allow mic access in browser settings.";
-          isJarvisRunning = false;
-          updateButton();
-          return;
-        }
-
-        if (event.error === "audio-capture") {
-          status.innerText = "❌ Microphone not found or unavailable.";
-          return;
-        }
-
-        status.innerText = "⚠️ Voice status: " + event.error;
-      };
-
-      wakeRecognition.onend = function() {
-        // Auto-restart recognition if Jarvis is active and not listening for a command
-        if (isJarvisRunning && !isCommandMode) {
-          clearTimeout(restartTimer);
-          restartTimer = setTimeout(() => {
-            if (isJarvisRunning && !isCommandMode) {
-              try {
-                wakeRecognition.start();
-              } catch (e) {
-                // If start fails due to pending state, retry in a moment
-                setTimeout(() => {
-                  if (isJarvisRunning && !isCommandMode) {
-                    try { wakeRecognition.start(); } catch (err) {}
-                  }
-                }, 300);
+        recognition.onend = function() {
+          // Restart clean recognition cycle after a small pause if still active
+          if (isJarvisActive) {
+            recognitionRestartTimeout = setTimeout(() => {
+              if (isJarvisActive) {
+                initiateRecognitionCycle();
               }
-            }
-          }, 200);
-        } else if (!isJarvisRunning) {
-          status.innerText = "Jarvis is sleeping...";
-        }
-      };
+            }, 250);
+          }
+        };
 
-      try {
-        wakeRecognition.start();
-      } catch (e) {
-        console.warn("Recognition start error:", e);
+        currentRecognition = recognition;
+        recognition.start();
+      } catch (err) {
+        console.warn("Recognition instantiation error:", err);
+        if (isJarvisActive) {
+          recognitionRestartTimeout = setTimeout(initiateRecognitionCycle, 1000);
+        }
       }
     }
 
-    function listenForCommand() {
-      const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-      const command = new SpeechRecognition();
-      command.lang = "en-US";
-      command.continuous = false;
-      command.interimResults = false;
-
-      status.innerText = "🎧 Listening for your command...";
-
-      command.onresult = function(event) {
-        const text = event.results[0][0].transcript.toLowerCase();
-        status.innerText = "Command: " + text;
-        handleCommand(text);
-      };
-
-      command.onerror = function(event) {
-        console.log("Command recognition error:", event.error);
-        if (event.error !== "no-speech" && event.error !== "aborted") {
-          status.innerText = "❌ Error: " + event.error;
-        }
-      };
-
-      command.onend = function() {
-        isCommandMode = false;
-        if (isJarvisRunning) {
-          clearTimeout(restartTimer);
-          restartTimer = setTimeout(() => {
-            if (isJarvisRunning && !isCommandMode) {
-              setupWakeRecognition();
-            }
-          }, 800);
-        }
-      };
-
-      try {
-        command.start();
-      } catch (e) {
-        isCommandMode = false;
-        if (isJarvisRunning) setupWakeRecognition();
-      }
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const val = commandInput.value.trim();
+      if (!val) return;
+      commandInput.value = "";
+      executeCommand(val);
     }
 
-    function simulateVoice(cmd) {
-      status.innerText = "Command (simulated): " + cmd;
-      handleCommand(cmd);
+    function executeCommand(text) {
+      addLog("user", text);
+      statusEl.innerText = 'Command: "' + text + '"';
+      handleCommand(text.toLowerCase());
     }
 
-    function openDestination(url) {
+    function openDestination(url, label) {
+      addLog("jarvis", "Opening " + label);
       try {
         const opened = window.open(url, "_blank");
         if (!opened) {
-          window.location.href = url;
+          addLog("jarvis", '💡 Note: Browser popup was blocked. You can click <a href="' + url + '" target="_blank" style="color:#00eaff;text-decoration:underline;font-weight:bold;">here to open ' + label + '</a> or use the player above.');
         }
       } catch (e) {
-        window.location.href = url;
+        console.warn("Window open error:", e);
       }
     }
 
-    function handleCommand(text) {
-      if (text.includes("open youtube")) {
+    async function playYouTubeTrack(query) {
+      addLog("jarvis", "Searching for '" + query + "' on YouTube...");
+
+      // Pre-open tab synchronously so browser popup blocker doesn't block async window.open
+      let preOpenedWindow = null;
+      try {
+        preOpenedWindow = window.open('about:blank', '_blank');
+      } catch (e) {
+        preOpenedWindow = null;
+      }
+
+      try {
+        const res = await fetch('/api/youtube-search?q=' + encodeURIComponent(query));
+        const data = await res.json();
+
+        if (data && data.videoId) {
+          const targetUrl = data.watchUrl;
+          const trackTitle = data.title || query;
+
+          if (preOpenedWindow && !preOpenedWindow.closed) {
+            preOpenedWindow.location.href = targetUrl;
+          } else {
+            openDestination(targetUrl, trackTitle);
+          }
+          addLog("jarvis", '▶️ Opened on YouTube: <a href="' + targetUrl + '" target="_blank" style="color:#00eaff;text-decoration:underline;font-weight:bold;">' + trackTitle + '</a>');
+        } else {
+          // Fallback if no specific videoId matched
+          const fallbackUrl = "https://www.youtube.com/results?search_query=" + encodeURIComponent(query);
+          if (preOpenedWindow && !preOpenedWindow.closed) {
+            preOpenedWindow.location.href = fallbackUrl;
+          } else {
+            openDestination(fallbackUrl, "YouTube: " + query);
+          }
+        }
+      } catch (err) {
+        console.error("Error finding video:", err);
+        const fallbackUrl = "https://www.youtube.com/results?search_query=" + encodeURIComponent(query);
+        if (preOpenedWindow && !preOpenedWindow.closed) {
+          preOpenedWindow.location.href = fallbackUrl;
+        } else {
+          openDestination(fallbackUrl, "YouTube: " + query);
+        }
+      }
+    }
+
+    function handleCommand(rawText) {
+      const text = rawText.toLowerCase().replace(/[?!.,]/g, '').trim();
+      playBeep('ack');
+
+      // Stop media playback mention
+      if (
+        text.includes("stop song") || 
+        text.includes("stop music") || 
+        text.includes("pause song") || 
+        text.includes("pause music") || 
+        text.includes("gana band karo") || 
+        text.includes("song band karo")
+      ) {
+        speak("The song is playing in the YouTube tab. You can switch to that tab to pause or close it.");
+        addLog("jarvis", "The song is playing in your YouTube browser tab. Switch to that tab to pause or close it.");
+        return;
+      }
+
+      // YouTube Song & Video Playback commands
+      let songQuery = null;
+
+      // 1. "open youtube and play <song>" or "open youtube play <song>"
+      let match = text.match(/open\s+youtube\s+(?:and\s+)?(?:play|search|chalao|lagao)\s+(.+)/i);
+      if (match) {
+        songQuery = match[1];
+      }
+
+      // 2. "play <song> on/in/from youtube"
+      if (!songQuery) {
+        match = text.match(/play\s+(.+?)\s+(?:on|in|from)\s+youtube/i);
+        if (match) songQuery = match[1];
+      }
+
+      // 3. "youtube (?:par|pe) <song> (?:chalao|lagao|play|play karo)"
+      if (!songQuery) {
+        match = text.match(/youtube\s+(?:par|pe)\s+(.+?)(?:\s+(?:chalao|lagao|play|play\s+karo))?$/i);
+        if (match && match[1].trim() !== "open") {
+          songQuery = match[1];
+        }
+      }
+
+      // 4. "youtube kholo aur <song> chalao"
+      if (!songQuery) {
+        match = text.match(/youtube\s+(?:kholo|open\s+karo)\s+(?:aur|and)\s+(.+?)(?:\s+(?:chalao|lagao|play))?$/i);
+        if (match) songQuery = match[1];
+      }
+
+      // 5. "play song <song>" or "play <song>"
+      if (!songQuery && (text.startsWith("play ") || text.startsWith("chalao ") || text.startsWith("lagao "))) {
+        match = text.match(/^(?:play(?:\s+song)?|chalao|lagao)\s+(.+)/i);
+        if (match && !match[1].startsWith("with ") && !match[1].startsWith("game")) {
+          songQuery = match[1];
+        }
+      }
+
+      // 6. "search youtube for <query>"
+      if (!songQuery) {
+        match = text.match(/search\s+(?:on\s+)?youtube\s+(?:for\s+)?(.+)/i);
+        if (match) songQuery = match[1];
+      }
+
+      if (songQuery) {
+        songQuery = songQuery.trim()
+          .replace(/\s+(?:chalao|lagao|sunao|karo|baja|bajao|please|for\s+me)$/i, '')
+          .trim();
+
+        if (songQuery && songQuery !== "youtube" && songQuery !== "video") {
+          speak("Opening YouTube and playing " + songQuery);
+          playYouTubeTrack(songQuery);
+          return;
+        }
+      }
+
+      // Standard YouTube
+      if (text.includes("open youtube") || text === "youtube") {
         speak("Opening YouTube");
-        openDestination("https://www.youtube.com");
+        openDestination("https://www.youtube.com", "YouTube");
+        return;
       }
-      else if (text.includes("open google")) {
+      // Google
+      else if (text.includes("open google") || text === "google") {
         speak("Opening Google");
-        openDestination("https://www.google.com");
+        openDestination("https://www.google.com", "Google");
       }
-      else if (text.includes("open gmail")) {
+      // Gmail
+      else if (text.includes("open gmail") || text === "gmail" || text.includes("check mail")) {
         speak("Opening Gmail");
-        openDestination("https://mail.google.com");
+        openDestination("https://mail.google.com", "Gmail");
       }
-      else if (text.includes("open roblox")) {
+      // Roblox
+      else if (text.includes("open roblox") || text === "roblox") {
         speak("Opening Roblox");
-        openDestination("https://www.roblox.com");
+        openDestination("https://www.roblox.com", "Roblox");
       }
-      else if (text.includes("what time")) {
-        const time = new Date().toLocaleTimeString();
-        speak("The time is " + time);
+      // GitHub
+      else if (text.includes("open github") || text === "github") {
+        speak("Opening GitHub");
+        openDestination("https://github.com", "GitHub");
       }
+      // Wikipedia
+      else if (text.includes("open wikipedia") || text === "wikipedia") {
+        speak("Opening Wikipedia");
+        openDestination("https://www.wikipedia.org", "Wikipedia");
+      }
+      // Time
+      else if (text.includes("what time") || text.includes("the time") || text === "time") {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        speak("The current time is " + timeString);
+      }
+      // Date
+      else if (text.includes("what date") || text.includes("today's date") || text.includes("what day") || text === "date") {
+        const now = new Date();
+        const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        speak("Today is " + dateString);
+      }
+      // Calculations
+      else if (text.includes("calculate") || text.includes("plus") || text.includes("minus") || text.includes("times") || text.includes("divided by") || /^\d+\s*[\+\-\*\/]\s*\d+/.test(text)) {
+        try {
+          let expr = text.replace("calculate", "")
+                         .replace(/plus/g, "+")
+                         .replace(/minus/g, "-")
+                         .replace(/times/g, "*")
+                         .replace(/multiplied by/g, "*")
+                         .replace(/divided by/g, "/")
+                         .replace(/x/g, "*")
+                         .replace(/[^0-9\+\-\*\/\.\(\)\s]/g, "");
+          if (expr.trim()) {
+            const result = Function('"use strict";return (' + expr + ')')();
+            speak("The result is " + result);
+          } else {
+            speak("Could not determine the mathematical expression.");
+          }
+        } catch (e) {
+          speak("Sorry, I could not solve that calculation.");
+        }
+      }
+      // Joke
+      else if (text.includes("joke") || text.includes("make me laugh")) {
+        const jokes = [
+          "Why do programmers prefer dark mode? Because light attracts bugs.",
+          "There are 10 types of people in the world: those who understand binary, and those who don't.",
+          "Why did the JavaScript developer wear glasses? Because they didn't C sharp.",
+          "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?",
+          "What do you call an intelligent artificial assistant? Rather Very Intelligent System."
+        ];
+        const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+        speak(randomJoke);
+      }
+      // Who are you / Identity
+      else if (text.includes("who are you") || text.includes("what are you") || text.includes("what is your name")) {
+        speak("I am JARVIS, your Just A Rather Very Intelligent System personal assistant.");
+      }
+      // Greeting
+      else if (text.includes("hello") || text.includes("hi jarvis") || text === "hi" || text.includes("good morning") || text.includes("good afternoon")) {
+        speak("Greetings! All systems are online and functioning at peak efficiency. How can I help you?");
+      }
+      // Stop / Sleep
+      else if (text.includes("stop") || text.includes("sleep") || text.includes("goodbye") || text.includes("shut down")) {
+        speak("Standing by. Call me when you need assistance.");
+        stopJarvis();
+      }
+      // Google search fallback
+      else if (text.startsWith("search for") || text.startsWith("search") || text.startsWith("google")) {
+        const query = text.replace(/^(search for|search|google)\s*/, '');
+        if (query) {
+          speak("Searching Google for " + query);
+          openDestination("https://www.google.com/search?q=" + encodeURIComponent(query), "Google Search");
+        } else {
+          speak("What would you like me to search for?");
+        }
+      }
+      // Fallback
       else {
-        speak("I heard you say " + text);
+        speak("I heard: " + rawText + ". You can ask for time, date, open websites, calculations, or search.");
       }
     }
 
     function speak(text) {
-      const speech = new SpeechSynthesisUtterance(text);
-      speech.lang = "en-US";
-      speech.rate = 1;
-      speech.pitch = 0.8;
-      window.speechSynthesis.speak(speech);
+      addLog("jarvis", text);
+
+      if (isVoiceMuted) {
+        setStatusState(isJarvisActive ? "listening" : "standby");
+        return;
+      }
+
+      if (!('speechSynthesis' in window)) {
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel(); // Cancel any lingering speech utterances
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US";
+        utterance.rate = 1.0;
+        utterance.pitch = 0.85;
+
+        // Pick an English voice if available
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Daniel") || v.name.includes("Male")));
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+
+        utterance.onstart = function() {
+          setStatusState("speaking", text);
+        };
+
+        utterance.onend = function() {
+          setStatusState(isJarvisActive ? "listening" : "standby", isJarvisActive ? "🎤 Listening..." : "Jarvis is ready.");
+        };
+
+        utterance.onerror = function() {
+          setStatusState(isJarvisActive ? "listening" : "standby");
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.warn("Speech synthesis error:", err);
+      }
+    }
+
+    function addLog(sender, text) {
+      const entry = document.createElement("div");
+      entry.className = "log-entry " + sender;
+
+      const senderSpan = document.createElement("span");
+      senderSpan.className = "log-sender";
+      senderSpan.innerText = sender === "user" ? "YOU" : "JARVIS";
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "log-text";
+      if (sender === "jarvis" && text.includes("<a ")) {
+        textSpan.innerHTML = text;
+      } else {
+        textSpan.innerText = text;
+      }
+
+      entry.appendChild(senderSpan);
+      entry.appendChild(textSpan);
+      logFeed.appendChild(entry);
+      logFeed.scrollTop = logFeed.scrollHeight;
+    }
+
+    function clearLogs() {
+      logFeed.innerHTML = "";
+    }
+
+    // Load available voices early
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = function() {
+        window.speechSynthesis.getVoices();
+      };
     }
   </script>
 

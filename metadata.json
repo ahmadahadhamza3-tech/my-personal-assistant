@@ -1,6 +1,6 @@
 {
   "name": "JARVIS",
-  "description": "A voice-controlled personal assistant web app powered by Web Speech API.",
+  "description": "A voice and command personal assistant web application powered by Web Speech API.",
   "requestFramePermissions": [
     "microphone"
   ],
