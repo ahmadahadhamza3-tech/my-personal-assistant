@@ -1,551 +1,184 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jarvis Assistant</title>
-
+  <title>JARVIS</title>
   <style>
     body {
       margin: 0;
+      background: #050505;
+      color: #00eaff;
       font-family: Arial, sans-serif;
-      background: #080d18;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .box {
-      width: 90%;
-      max-width: 700px;
-      background: #121a2b;
-      padding: 30px;
-      border-radius: 25px;
       text-align: center;
-      box-shadow: 0 0 40px #000;
-    }
-
-    .robot {
-      font-size: 70px;
+      padding-top: 80px;
     }
 
     h1 {
-      font-size: 35px;
-      margin: 10px;
+      font-size: 60px;
+      margin-bottom: 10px;
     }
 
-    #status {
-      color: #20df82;
-      margin: 15px;
-    }
-
-    #chat {
-      height: 300px;
-      overflow-y: auto;
-      background: #080d18;
-      border-radius: 15px;
-      padding: 15px;
-      text-align: left;
-    }
-
-    .message {
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 12px;
-    }
-
-    .jarvis {
-      background: #202d48;
-    }
-
-    .user {
-      background: #315efb;
-      text-align: right;
-    }
-
-    .controls {
-      margin-top: 15px;
-      display: flex;
-      gap: 10px;
-    }
-
-    input {
-      flex: 1;
-      padding: 15px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 16px;
+    p {
+      font-size: 20px;
+      color: white;
     }
 
     button {
-      padding: 15px 20px;
-      border: none;
-      border-radius: 12px;
-      background: #315efb;
-      color: white;
-      font-weight: bold;
+      margin-top: 30px;
+      padding: 18px 35px;
+      font-size: 22px;
+      border: 2px solid #00eaff;
+      border-radius: 15px;
+      background: #00151a;
+      color: #00eaff;
       cursor: pointer;
     }
 
-    #start {
-      background: #16b96c;
-      margin-top: 15px;
+    button:hover {
+      background: #00343d;
+    }
+
+    #status {
+      margin-top: 30px;
+      font-size: 20px;
+      color: white;
     }
   </style>
 </head>
 
 <body>
 
-<div class="box">
-
-  <div class="robot">🤖</div>
-
   <h1>JARVIS</h1>
+  <p>Say "Hey Jarvis"</p>
 
-  <div id="status">
-    Say "Hey Jarvis"
-  </div>
+  <button onclick="startJarvis()">🎤 Start Jarvis</button>
 
-  <div id="chat">
+  <div id="status">Jarvis is sleeping...</div>
 
-    <div class="message jarvis">
-      Hello! I am Jarvis. Say "Hey Jarvis" followed by a command.
-    </div>
+  <script>
+    const status = document.getElementById("status");
 
-  </div>
+    function startJarvis() {
 
-  <div class="controls">
+      const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
-    <input
-      id="input"
-      placeholder="Type a command..."
-    >
+      if (!SpeechRecognition) {
+        status.innerText =
+          "❌ Speech recognition is not supported in this browser.";
+        return;
+      }
 
-    <button onclick="sendText()">
-      Send
-    </button>
+      const recognition = new SpeechRecognition();
 
-  </div>
+      recognition.lang = "en-US";
+      recognition.continuous = true;
+      recognition.interimResults = false;
 
-  <button id="start" onclick="startJarvis()">
-    🎤 Start Jarvis
-  </button>
+      status.innerText = "🎤 Listening... Say Hey Jarvis";
 
-</div>
+      recognition.onresult = function(event) {
 
+        const text =
+          event.results[event.results.length - 1][0].transcript
+          .toLowerCase();
 
-<script>
+        status.innerText = "You said: " + text;
 
-let recognition;
-let jarvisRunning = false;
+        if (text.includes("hey jarvis")) {
+          speak("Yes, I am listening.");
 
+          setTimeout(() => {
+            listenForCommand();
+          }, 1500);
+        }
+      };
 
-/* SPEAK */
+      recognition.onerror = function(event) {
+        status.innerText = "❌ Microphone error: " + event.error;
+      };
 
-function speak(text) {
+      recognition.onend = function() {
+        status.innerText = "Jarvis stopped listening.";
+      };
 
-  const voice =
-    new SpeechSynthesisUtterance(text);
-
-  voice.rate = 1;
-  voice.pitch = 1;
-
-  speechSynthesis.cancel();
-
-  speechSynthesis.speak(voice);
-}
-
-
-/* CHAT MESSAGE */
-
-function addMessage(text, type) {
-
-  const message =
-    document.createElement("div");
-
-  message.className =
-    "message " + type;
-
-  message.innerText = text;
-
-  document
-    .getElementById("chat")
-    .appendChild(message);
-
-  document
-    .getElementById("chat")
-    .scrollTop = 999999;
-
-}
-
-
-/* COMMAND */
-
-function command(text) {
-
-  const lower =
-    text.toLowerCase();
-
-
-  /* YOUTUBE */
-
-  if (
-    lower.includes("open youtube")
-  ) {
-
-    speak("Opening YouTube.");
-
-    window.open(
-      "https://www.youtube.com",
-      "_blank"
-    );
-
-    return;
-  }
-
-
-  /* PLAY SONG */
-
-  if (
-    lower.includes("play")
-  ) {
-
-    let song =
-      text
-      .replace(/play/ig, "")
-      .trim();
-
-    if (song === "") {
-
-      speak(
-        "What song should I play?"
-      );
-
-      return;
+      recognition.start();
     }
 
-    speak(
-      "Searching YouTube for " + song
-    );
+    function listenForCommand() {
 
-    window.open(
-      "https://www.youtube.com/results?search_query=" +
-      encodeURIComponent(song),
-      "_blank"
-    );
+      const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
-    return;
-  }
+      const command = new SpeechRecognition();
 
+      command.lang = "en-US";
+      command.continuous = false;
+      command.interimResults = false;
 
-  /* YOUTUBE SEARCH */
+      status.innerText = "🎧 Listening for your command...";
 
-  if (
-    lower.includes("search youtube")
-  ) {
+      command.onresult = function(event) {
 
-    let search =
-      text
-      .replace(/search youtube/ig, "")
-      .trim();
+        const text =
+          event.results[0][0].transcript.toLowerCase();
 
-    speak(
-      "Searching YouTube for " + search
-    );
+        status.innerText = "Command: " + text;
 
-    window.open(
-      "https://www.youtube.com/results?search_query=" +
-      encodeURIComponent(search),
-      "_blank"
-    );
+        handleCommand(text);
+      };
 
-    return;
-  }
+      command.onerror = function(event) {
+        status.innerText = "❌ Error: " + event.error;
+      };
 
+      command.start();
+    }
 
-  /* GOOGLE SEARCH */
+    function handleCommand(text) {
 
-  if (
-    lower.includes("search google")
-  ) {
-
-    let search =
-      text
-      .replace(/search google/ig, "")
-      .trim();
-
-    speak(
-      "Searching Google for " + search
-    );
-
-    window.open(
-      "https://www.google.com/search?q=" +
-      encodeURIComponent(search),
-      "_blank"
-    );
-
-    return;
-  }
-
-
-  /* GOOGLE */
-
-  if (
-    lower === "open google"
-  ) {
-
-    speak("Opening Google.");
-
-    window.open(
-      "https://www.google.com",
-      "_blank"
-    );
-
-    return;
-  }
-
-
-  /* TIME */
-
-  if (
-    lower.includes("what time") ||
-    lower === "time"
-  ) {
-
-    speak(
-      "The time is " +
-      new Date().toLocaleTimeString()
-    );
-
-    return;
-  }
-
-
-  /* DATE */
-
-  if (
-    lower.includes("what date") ||
-    lower.includes("today")
-  ) {
-
-    speak(
-      "Today is " +
-      new Date().toLocaleDateString()
-    );
-
-    return;
-  }
-
-
-  /* GMAIL */
-
-  if (
-    lower.includes("open gmail")
-  ) {
-
-    speak("Opening Gmail.");
-
-    window.open(
-      "https://mail.google.com",
-      "_blank"
-    );
-
-    return;
-  }
-
-
-  /* ROBLOX */
-
-  if (
-    lower.includes("open roblox")
-  ) {
-
-    speak("Opening Roblox.");
-
-    window.open(
-      "https://www.roblox.com",
-      "_blank"
-    );
-
-    return;
-  }
-
-
-  /* HELLO */
-
-  if (
-    lower.includes("hello") ||
-    lower.includes("hi")
-  ) {
-
-    speak(
-      "Hello! How can I help you?"
-    );
-
-    return;
-  }
-
-
-  speak(
-    "Sorry, I don't know that command yet."
-  );
-
-}
-
-
-/* SEND TEXT */
-
-function sendText() {
-
-  const input =
-    document.getElementById("input");
-
-  const text =
-    input.value.trim();
-
-  if (!text) return;
-
-  addMessage(
-    text,
-    "user"
-  );
-
-  input.value = "";
-
-  command(text);
-
-}
-
-
-/* VOICE */
-
-function startJarvis() {
-
-  const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-
-  if (!SpeechRecognition) {
-
-    alert(
-      "Voice recognition is not supported in this browser."
-    );
-
-    return;
-  }
-
-
-  recognition =
-    new SpeechRecognition();
-
-  recognition.lang =
-    "en-US";
-
-  recognition.continuous =
-    true;
-
-  recognition.interimResults =
-    false;
-
-
-  jarvisRunning = true;
-
-
-  document.getElementById("status")
-    .innerText =
-    '🎤 Listening... Say "Hey Jarvis"';
-
-
-  recognition.onresult =
-    function(event) {
-
-      const result =
-        event.results[
-          event.results.length - 1
-        ];
-
-      const spoken =
-        result[0].transcript.trim();
-
-
-      const lower =
-        spoken.toLowerCase();
-
-
-      if (
-        lower.includes("hey jarvis")
-      ) {
-
-        let commandText =
-          spoken
-          .replace(/hey jarvis/ig, "")
-          .trim();
-
-
-        if (commandText) {
-
-          addMessage(
-            commandText,
-            "user"
-          );
-
-          command(
-            commandText
-          );
-
-        } else {
-
-          speak(
-            "Yes, I'm listening."
-          );
-
-        }
-
+      if (text.includes("open youtube")) {
+        speak("Opening YouTube");
+        window.location.href = "https://www.youtube.com";
       }
 
-    };
-
-
-  recognition.onend =
-    function() {
-
-      if (jarvisRunning) {
-
-        try {
-
-          recognition.start();
-
-        } catch(error) {}
-
+      else if (text.includes("open google")) {
+        speak("Opening Google");
+        window.location.href = "https://www.google.com";
       }
 
-    };
+      else if (text.includes("open gmail")) {
+        speak("Opening Gmail");
+        window.location.href = "https://mail.google.com";
+      }
 
+      else if (text.includes("open roblox")) {
+        speak("Opening Roblox");
+        window.location.href = "https://www.roblox.com";
+      }
 
-  recognition.onerror =
-    function(error) {
+      else if (text.includes("what time")) {
+        const time = new Date().toLocaleTimeString();
+        speak("The time is " + time);
+      }
 
-      console.log(
-        "Jarvis error:",
-        error
-      );
+      else {
+        speak("I heard you say " + text);
+      }
+    }
 
-    };
+    function speak(text) {
 
+      const speech = new SpeechSynthesisUtterance(text);
 
-  try {
+      speech.lang = "en-US";
+      speech.rate = 1;
+      speech.pitch = 0.8;
 
-    recognition.start();
-
-  } catch(error) {}
-
-}
-
-</script>
+      window.speechSynthesis.speak(speech);
+    }
+  </script>
 
 </body>
 </html>
