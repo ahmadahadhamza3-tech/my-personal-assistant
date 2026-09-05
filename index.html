@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JARVIS</title>
+  <meta name="description" content="A voice-controlled personal assistant web app powered by Web Speech API.">
+  <meta property="og:title" content="JARVIS">
+  <meta property="og:description" content="A voice-controlled personal assistant web app powered by Web Speech API.">
   <style>
     body {
       margin: 0;
@@ -50,35 +55,124 @@
   <h1>JARVIS</h1>
   <p>Say "Hey Jarvis"</p>
 
-  <button onclick="startJarvis()">🎤 Start Jarvis</button>
+  <button id="start-jarvis-btn" onclick="toggleJarvis()">🎤 Start Jarvis</button>
 
   <div id="status">Jarvis is sleeping...</div>
+  <div id="hint" style="margin-top: 15px; font-size: 14px; color: #888;">
+    Microphone permission required. If blocked in preview, open in a new tab.
+  </div>
+
+  <div style="margin-top: 40px; display: inline-block; text-align: center;">
+    <p style="font-size: 15px; color: #00eaff; margin-bottom: 10px;">Quick Test (click to test voice response):</p>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+      <button style="margin-top: 0; padding: 8px 16px; font-size: 14px; border-radius: 8px;" onclick="simulateVoice('what time')">⏰ What time</button>
+      <button style="margin-top: 0; padding: 8px 16px; font-size: 14px; border-radius: 8px;" onclick="simulateVoice('open youtube')">▶️ Open YouTube</button>
+      <button style="margin-top: 0; padding: 8px 16px; font-size: 14px; border-radius: 8px;" onclick="simulateVoice('open google')">🔍 Open Google</button>
+    </div>
+  </div>
 
   <script>
     const status = document.getElementById("status");
+    const startBtn = document.getElementById("start-jarvis-btn");
+    let wakeRecognition = null;
+    let isJarvisRunning = false;
+    let isCommandMode = false;
+    let restartTimer = null;
 
-    function startJarvis() {
+    function updateButton() {
+      if (isJarvisRunning) {
+        startBtn.innerText = "⏹️ Stop Jarvis";
+        startBtn.style.background = "#00343d";
+        startBtn.style.borderColor = "#ff4d4d";
+        startBtn.style.color = "#ff8080";
+      } else {
+        startBtn.innerText = "🎤 Start Jarvis";
+        startBtn.style.background = "#00151a";
+        startBtn.style.borderColor = "#00eaff";
+        startBtn.style.color = "#00eaff";
+      }
+    }
 
+    function toggleJarvis() {
+      if (isJarvisRunning) {
+        stopJarvis();
+      } else {
+        startJarvis();
+      }
+    }
+
+    function stopJarvis() {
+      isJarvisRunning = false;
+      isCommandMode = false;
+      clearTimeout(restartTimer);
+      if (wakeRecognition) {
+        try {
+          wakeRecognition.abort();
+        } catch (e) {}
+      }
+      updateButton();
+      status.innerText = "Jarvis is sleeping...";
+    }
+
+    async function startJarvis() {
       const SpeechRecognition =
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
         status.innerText =
-          "❌ Speech recognition is not supported in this browser.";
+          "❌ Speech recognition is not supported in this browser. Please use Chrome or Edge.";
         return;
       }
 
-      const recognition = new SpeechRecognition();
+      isJarvisRunning = true;
+      isCommandMode = false;
+      updateButton();
+      status.innerText = "🔄 Initializing microphone...";
 
-      recognition.lang = "en-US";
-      recognition.continuous = true;
-      recognition.interimResults = false;
+      // Prompt for mic permission cleanly if available
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(track => track.stop());
+        } catch (err) {
+          if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+            status.innerText = "❌ Microphone permission blocked! Please allow microphone access in your browser bar.";
+            isJarvisRunning = false;
+            updateButton();
+            return;
+          }
+        }
+      }
 
-      status.innerText = "🎤 Listening... Say Hey Jarvis";
+      setupWakeRecognition();
+    }
 
-      recognition.onresult = function(event) {
+    function setupWakeRecognition() {
+      const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
+      if (!SpeechRecognition || !isJarvisRunning) return;
+
+      if (wakeRecognition) {
+        try {
+          wakeRecognition.abort();
+        } catch (e) {}
+      }
+
+      wakeRecognition = new SpeechRecognition();
+      wakeRecognition.lang = "en-US";
+      wakeRecognition.continuous = true;
+      wakeRecognition.interimResults = false;
+
+      wakeRecognition.onstart = function() {
+        if (isJarvisRunning && !isCommandMode) {
+          status.innerText = "🎤 Listening... Say 'Hey Jarvis'";
+        }
+      };
+
+      wakeRecognition.onresult = function(event) {
         const text =
           event.results[event.results.length - 1][0].transcript
           .toLowerCase();
@@ -86,33 +180,79 @@
         status.innerText = "You said: " + text;
 
         if (text.includes("hey jarvis")) {
+          isCommandMode = true;
           speak("Yes, I am listening.");
 
+          try {
+            wakeRecognition.stop();
+          } catch (e) {}
+
           setTimeout(() => {
-            listenForCommand();
+            if (isJarvisRunning) {
+              listenForCommand();
+            }
           }, 1500);
         }
       };
 
-      recognition.onerror = function(event) {
-        status.innerText = "❌ Microphone error: " + event.error;
+      wakeRecognition.onerror = function(event) {
+        console.log("Wake recognition event:", event.error);
+        // no-speech or aborted are expected in continuous recognition
+        if (event.error === "no-speech" || event.error === "aborted") {
+          return;
+        }
+
+        if (event.error === "not-allowed") {
+          status.innerText = "❌ Microphone permission blocked. Allow mic access in browser settings.";
+          isJarvisRunning = false;
+          updateButton();
+          return;
+        }
+
+        if (event.error === "audio-capture") {
+          status.innerText = "❌ Microphone not found or unavailable.";
+          return;
+        }
+
+        status.innerText = "⚠️ Voice status: " + event.error;
       };
 
-      recognition.onend = function() {
-        status.innerText = "Jarvis stopped listening.";
+      wakeRecognition.onend = function() {
+        // Auto-restart recognition if Jarvis is active and not listening for a command
+        if (isJarvisRunning && !isCommandMode) {
+          clearTimeout(restartTimer);
+          restartTimer = setTimeout(() => {
+            if (isJarvisRunning && !isCommandMode) {
+              try {
+                wakeRecognition.start();
+              } catch (e) {
+                // If start fails due to pending state, retry in a moment
+                setTimeout(() => {
+                  if (isJarvisRunning && !isCommandMode) {
+                    try { wakeRecognition.start(); } catch (err) {}
+                  }
+                }, 300);
+              }
+            }
+          }, 200);
+        } else if (!isJarvisRunning) {
+          status.innerText = "Jarvis is sleeping...";
+        }
       };
 
-      recognition.start();
+      try {
+        wakeRecognition.start();
+      } catch (e) {
+        console.warn("Recognition start error:", e);
+      }
     }
 
     function listenForCommand() {
-
       const SpeechRecognition =
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
       const command = new SpeechRecognition();
-
       command.lang = "en-US";
       command.continuous = false;
       command.interimResults = false;
@@ -120,62 +260,85 @@
       status.innerText = "🎧 Listening for your command...";
 
       command.onresult = function(event) {
-
-        const text =
-          event.results[0][0].transcript.toLowerCase();
-
+        const text = event.results[0][0].transcript.toLowerCase();
         status.innerText = "Command: " + text;
-
         handleCommand(text);
       };
 
       command.onerror = function(event) {
-        status.innerText = "❌ Error: " + event.error;
+        console.log("Command recognition error:", event.error);
+        if (event.error !== "no-speech" && event.error !== "aborted") {
+          status.innerText = "❌ Error: " + event.error;
+        }
       };
 
-      command.start();
+      command.onend = function() {
+        isCommandMode = false;
+        if (isJarvisRunning) {
+          clearTimeout(restartTimer);
+          restartTimer = setTimeout(() => {
+            if (isJarvisRunning && !isCommandMode) {
+              setupWakeRecognition();
+            }
+          }, 800);
+        }
+      };
+
+      try {
+        command.start();
+      } catch (e) {
+        isCommandMode = false;
+        if (isJarvisRunning) setupWakeRecognition();
+      }
+    }
+
+    function simulateVoice(cmd) {
+      status.innerText = "Command (simulated): " + cmd;
+      handleCommand(cmd);
+    }
+
+    function openDestination(url) {
+      try {
+        const opened = window.open(url, "_blank");
+        if (!opened) {
+          window.location.href = url;
+        }
+      } catch (e) {
+        window.location.href = url;
+      }
     }
 
     function handleCommand(text) {
-
       if (text.includes("open youtube")) {
         speak("Opening YouTube");
-        window.location.href = "https://www.youtube.com";
+        openDestination("https://www.youtube.com");
       }
-
       else if (text.includes("open google")) {
         speak("Opening Google");
-        window.location.href = "https://www.google.com";
+        openDestination("https://www.google.com");
       }
-
       else if (text.includes("open gmail")) {
         speak("Opening Gmail");
-        window.location.href = "https://mail.google.com";
+        openDestination("https://mail.google.com");
       }
-
       else if (text.includes("open roblox")) {
         speak("Opening Roblox");
-        window.location.href = "https://www.roblox.com";
+        openDestination("https://www.roblox.com");
       }
-
       else if (text.includes("what time")) {
         const time = new Date().toLocaleTimeString();
         speak("The time is " + time);
       }
-
       else {
         speak("I heard you say " + text);
       }
     }
 
     function speak(text) {
-
       const speech = new SpeechSynthesisUtterance(text);
-
       speech.lang = "en-US";
       speech.rate = 1;
       speech.pitch = 0.8;
-
       window.speechSynthesis.speak(speech);
     }
   </script>
